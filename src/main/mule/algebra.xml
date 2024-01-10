@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="f0767aae-b418-455e-ba41-d0bb929d89ec" >
+		<http:listener-connection host="${http.host}" port="${http.port}" />
+	</http:listener-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="039d5ade-f64c-4fbf-ba23-20b624f8aa08" file="dev.yaml" />
+	<flow name="algebraFlow" doc:id="782cf8bf-4e18-441f-9546-d2070212c9ad" >
+		<http:listener doc:name="Listener" doc:id="9dc5ddeb-4a58-4258-8683-f3e000eb4718" config-ref="HTTP_Listener_config" path="/maths"/>
+		<logger level="INFO" doc:name="Logger" doc:id="824e2664-e8a7-41ce-9500-13ecd33e2db9" message="start flow"/>
+		<set-variable value="#[attributes.queryParams.number1]" doc:name="Set Variable" doc:id="9d9e7e92-87f4-46c1-9a36-b4d678a27994" variableName="number1"/>
+		<set-variable value="#[attributes.queryParams.number2]" doc:name="Set Variable" doc:id="7f1a82ec-dcfd-498c-b4a8-44320381c513" variableName="number2"/>
+		<ee:transform doc:name="Transform Message" doc:id="0438b614-6201-4d18-9629-60c691674196" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"addition": (vars.number1 as Number + vars.number2 as Number),
+	"division": (vars.number1 as Number / vars.number2 as Number)
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="4e9c3163-3b62-4242-98ca-dbad58cade5f" message="stop message"/>
+	</flow>
+</mule>
